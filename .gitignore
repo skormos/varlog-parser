@@ -1,3 +1,7 @@
+.idea/
+
+./varlogd
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
