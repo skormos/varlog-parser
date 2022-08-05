@@ -9,3 +9,7 @@ compile:
 run:
 	go run ./cmd/varlog
 .PHONY: run
+
+test:
+	go test -count=1 ./...
+.PHONY: run
