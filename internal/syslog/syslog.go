@@ -25,6 +25,8 @@ const (
 )
 
 type (
+	//LogLine represents a full record in a log file after it has been parsed. This includes concatenating multi-line
+	// entries into a single struct.
 	LogLine struct {
 		Timestamp   time.Time
 		Host        string
@@ -34,11 +36,21 @@ type (
 		Raw         string
 	}
 
+	// Parser uses a regular expression to parse a SysLog header entry, or detects a tab character for a continuation
+	// line of the message.
+	// It parses a log entry with the following format:
+	//
+	//     Timestamp Hostname ProcessName[PID]: Message
+	//     <TAB>Message next line till next head.
+	//
+	// Timestamp is parsed as a time using time.Stamp, and PID must be an int.
+	// The Raw field in the resulting LogLine is a full text aggregation of an entire Log including continuation lines and tabs.
 	Parser struct {
 		headerExp *regexp.Regexp
 	}
 )
 
+// NewSyslogParser returns an instance of Parser. It will return an error if the RegExp pattern can not be compiled.
 func NewSyslogParser() (*Parser, error) {
 	exp, err := regexp.Compile(headerPattern)
 
@@ -51,7 +63,9 @@ func NewSyslogParser() (*Parser, error) {
 	}, nil
 }
 
-func (p *Parser) Parse(ctx context.Context, reader io.Reader) ([]*LogLine, error) {
+// Parse wraps the reader in a Scanner to read lines and attempts to create log entries over multiple lines.
+// It will return an error if the lines are not formatted correctly. See Parser for more information.
+func (p *Parser) Parse(_ context.Context, reader io.Reader) ([]*LogLine, error) {
 	scanner := bufio.NewScanner(reader)
 
 	lines := make([]*LogLine, 0)
