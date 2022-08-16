@@ -18,3 +18,11 @@ lint:
 test: lint
 	go test -count=1 ./...
 .PHONY: run
+
+_install-codegen:
+	go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+.PHONY: _install-codegen
+
+generate-api: _install-codegen
+	APIFILE=$(PWD)/api/rest/$(version)/varlog.openapi3.json go generate ./internal/api/rest/$(version)/...
+.PHONY: generate

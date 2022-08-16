@@ -1,9 +1,6 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	stdhttp "net/http"
 	stdos "os"
 	"os/signal"
 	"syscall"
@@ -13,7 +10,7 @@ import (
 	"github.com/rs/zerolog"
 
 	"github.com/skormos/varlog-parser/cmd/varlog/http"
-	"github.com/skormos/varlog-parser/internal/logparser"
+	"github.com/skormos/varlog-parser/internal/handler"
 	"github.com/skormos/varlog-parser/internal/os"
 )
 
@@ -35,31 +32,11 @@ func main() {
 		}
 		return
 	}
+	mainLogger.Info().Msgf("file handler registered for directory: %s", config.dirPath)
 
-	logFile, err := fileHandler.Open("benchmark.log")
-	defer func() {
-		if err := logFile.Close(); err != nil {
-			mainLogger.Warn().Err(err).Msgf("closing requested log file")
-		}
-	}()
-	if err != nil {
-		mainLogger.Err(err).Msgf("retrieving requested log file")
-		return
-	}
-
-	lines, err := logparser.ParseLastNLines(context.Background(), logFile, 7)
-	if err != nil {
-		mainLogger.Err(err).Msgf("parsing requested log file")
-		return
-	}
-
-	for idx, line := range lines {
-		fmt.Println(idx, line)
-	}
-
-	server := http.NewServerWrapper(stdoutLoggerContext("http"), stdhttp.HandlerFunc(func(writer stdhttp.ResponseWriter, _ *stdhttp.Request) {
-		_, _ = writer.Write([]byte("this is the output"))
-	}), http.WithPort(config.http.port))
+	httpLogContext := stdoutLoggerContext("http")
+	httpHandler := handler.NewHandler(httpLogContext, fileHandler)
+	server := http.NewServerWrapper(httpLogContext, httpHandler, http.WithPort(config.http.port))
 
 	grp := new(errgroup.Group)
 	grp.Go(onShutdown(mainLogger, server.Stop))
