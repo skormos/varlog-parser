@@ -41,7 +41,7 @@ func TestParseLastNLines(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(tt *testing.T) {
-			actual, actualErr := ParseLastNLines(context.TODO(), strings.NewReader(test.input), test.nLines)
+			actual, actualErr := ParseLastNLines(context.TODO(), strings.NewReader(test.input), test.nLines, FilterNone())
 			require.NoError(t, actualErr)
 			require.NotNil(t, actual)
 
@@ -53,7 +53,7 @@ func TestParseLastNLines(t *testing.T) {
 func TestParseLastNLines_WithError(t *testing.T) {
 	expectedError := errors.New("my custom error")
 
-	actual, actualErr := ParseLastNLines(context.TODO(), iotest.ErrReader(expectedError), 100)
+	actual, actualErr := ParseLastNLines(context.TODO(), iotest.ErrReader(expectedError), 100, FilterNone())
 	require.Nil(t, actual)
 	require.Error(t, actualErr)
 

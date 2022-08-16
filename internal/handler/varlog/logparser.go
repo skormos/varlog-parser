@@ -1,6 +1,7 @@
-package handler
+package varlog
 
 import (
+	"fmt"
 	"net/http"
 	stdos "os"
 
@@ -9,6 +10,11 @@ import (
 	v1 "github.com/skormos/varlog-parser/internal/api/rest/v1"
 	"github.com/skormos/varlog-parser/internal/logparser"
 	"github.com/skormos/varlog-parser/internal/os"
+)
+
+const (
+	defaultLines = 25
+	maxLines     = 10000
 )
 
 type (
@@ -24,6 +30,8 @@ type (
 	}
 
 	rawLines []string
+
+	getEntriesParams v1.GetEntriesParams
 )
 
 // GetEntries uses the provided FileOpener implementation to retrieve the most recent log entries as part of the query
@@ -53,17 +61,14 @@ func (l *LogParserHandler) GetEntries(w http.ResponseWriter, r *http.Request, fi
 		return
 	}
 
-	numLines := 25
-	if params.NumEntries != nil {
-		val := params.NumEntries
-		if *val > 1000 {
-			numLines = 1000
-		} else if *val > 0 {
-			numLines = *val
-		}
+	parsedParams := getEntriesParams(params)
+	numLines, err := parsedParams.numLines()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
-	lines, err := logparser.ParseLastNLines(r.Context(), reader, numLines)
+	lines, err := logparser.ParseLastNLines(r.Context(), reader, numLines, parsedParams.filterer())
 	if err != nil {
 		l.logger.Err(err).Msgf("while parsing %d lines for file %s", numLines, filename)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -96,4 +101,28 @@ func (l rawLines) toEntries() []v1.LogEntry {
 	}
 
 	return out
+}
+
+func (p getEntriesParams) numLines() (int, error) {
+	if p.NumEntries == nil {
+		return defaultLines, nil
+	}
+
+	if *p.NumEntries > maxLines {
+		return -1, fmt.Errorf("numEntries value cannot be larger than %d", maxLines)
+	}
+
+	if *p.NumEntries <= 0 {
+		return -1, fmt.Errorf("numEntries value cannot be less than 1")
+	}
+
+	return *p.NumEntries, nil
+}
+
+func (p getEntriesParams) filterer() logparser.Filterer {
+	if p.FilterByText == nil || *p.FilterByText == "" {
+		return logparser.FilterNone()
+	}
+
+	return logparser.FilterOnSubstring(*p.FilterByText)
 }
