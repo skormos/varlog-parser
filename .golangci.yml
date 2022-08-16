@@ -14,7 +14,7 @@ linters: # Descriptions: https://github.com/golangci/awesome-go-linters
     - gosec
     - nolintlint
     - revive # https://revive.run/docs#golangci-lint
-    - rowserrcheck
+    #- rowserrcheck # https://github.com/golangci/golangci-lint/issues/2649
     - stylecheck
     - unparam
 linters-settings:

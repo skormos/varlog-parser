@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"strconv"
 )
 
 type config struct {
@@ -10,7 +11,7 @@ type config struct {
 }
 
 type httpConfig struct {
-	port int
+	port string
 }
 
 func parseFlags() config {
@@ -22,7 +23,7 @@ func parseFlags() config {
 	return config{
 		dirPath: *logPath,
 		http: httpConfig{
-			port: *httpPort,
+			port: strconv.Itoa(*httpPort),
 		},
 	}
 }
