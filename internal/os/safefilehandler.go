@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var (
@@ -47,6 +48,10 @@ func NewFileHandler(dirPath string) (*SafeFileHandler, error) {
 // Open is a simple wrapper around os.Open, but also joins the filename to the directory, cleans the path, checks the
 // file exists.
 func (h *SafeFileHandler) Open(filename string) (*os.File, error) {
+	if strings.ContainsRune(filename, filepath.Separator) {
+		return nil, ErrNotExists
+	}
+
 	cleanPath := filepath.Clean(filepath.Join(h.dirPath, filename))
 
 	info, err := os.Lstat(cleanPath)

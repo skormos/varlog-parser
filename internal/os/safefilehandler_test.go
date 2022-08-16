@@ -90,6 +90,10 @@ func TestSafeFileHandler_Open(t *testing.T) {
 			filename:    "unreadable.log",
 			expectError: true,
 		},
+		"File in subdirectory should return an error": {
+			filename:    "subpathtest/messages.log",
+			expectError: true,
+		},
 		"Existing file returns successfully": {
 			filename:    "empty.log",
 			expectError: false,
@@ -119,13 +123,17 @@ func TestSafeFileHandler_Open(t *testing.T) {
 		filename      string
 		expectedError error
 	}{
-		"Non existing file returns ErrNotExists": {
+		"Non existing file should return ErrNotExists": {
 			filename:      "doesnotexist.log",
 			expectedError: ErrNotExists,
 		},
-		"Unreadable file returns ErrNoReadPerm": {
+		"Unreadable file should return ErrNoReadPerm": {
 			filename:      "unreadable.log",
 			expectedError: ErrNoReadPerm,
+		},
+		"File in subdirectory should return ErrNotExists": {
+			filename:      "subpathtest/messages.log",
+			expectedError: ErrNotExists,
 		},
 	}
 

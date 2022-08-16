@@ -24,8 +24,8 @@ type GetEntriesParams struct {
 	// The number of entries to return from the specified file name.
 	NumEntries *int `form:"numEntries,omitempty" json:"numEntries,omitempty"`
 
-	// A simple string to search in the result set.
-	Filter *string `form:"filter,omitempty" json:"filter,omitempty"`
+	// A simple string to search for specific substrings in the result set.
+	FilterByText *string `form:"filterByText,omitempty" json:"filterByText,omitempty"`
 }
 
 // ServerInterface represents all server handlers.
@@ -73,14 +73,14 @@ func (siw *ServerInterfaceWrapper) GetEntries(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// ------------- Optional query parameter "filter" -------------
-	if paramValue := r.URL.Query().Get("filter"); paramValue != "" {
+	// ------------- Optional query parameter "filterByText" -------------
+	if paramValue := r.URL.Query().Get("filterByText"); paramValue != "" {
 
 	}
 
-	err = runtime.BindQueryParameter("form", true, false, "filter", r.URL.Query(), &params.Filter)
+	err = runtime.BindQueryParameter("form", true, false, "filterByText", r.URL.Query(), &params.FilterByText)
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "filter", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "filterByText", Err: err})
 		return
 	}
 

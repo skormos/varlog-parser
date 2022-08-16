@@ -5,12 +5,13 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/skormos/varlog-parser/internal/handler/varlog"
+
 	"golang.org/x/sync/errgroup"
 
 	"github.com/rs/zerolog"
 
 	"github.com/skormos/varlog-parser/cmd/varlog/http"
-	"github.com/skormos/varlog-parser/internal/handler"
 	"github.com/skormos/varlog-parser/internal/os"
 )
 
@@ -35,7 +36,8 @@ func main() {
 	mainLogger.Info().Msgf("file handler registered for directory: %s", config.dirPath)
 
 	httpLogContext := stdoutLoggerContext("http")
-	httpHandler := handler.NewHandler(httpLogContext, fileHandler)
+
+	httpHandler := rootHandler(apiHandler(varlog.NewHandler(httpLogContext, fileHandler)))
 	server := http.NewServerWrapper(httpLogContext, httpHandler, http.WithPort(config.http.port))
 
 	grp := new(errgroup.Group)

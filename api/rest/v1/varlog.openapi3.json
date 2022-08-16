@@ -6,13 +6,13 @@
   },
   "servers": [
     {
-      "url": "https://localhost:8080/api/varlog"
+      "url": "http://localhost:8080/api/varlog"
     }
   ],
   "components": {
     "responses": {
       "GetEntriesResponse": {
-        "description": "The result of requesting the GetEntries endpoint for a specific file.",
+        "description": "The list of log entries that match the requested criteria. The results are in descending order of when they were added to the requested log file.",
         "content": {
           "application/json": {
             "schema": {
@@ -41,14 +41,14 @@
   "paths": {
     "/{filename}": {
       "get": {
-        "summary": "Gets the latest log entries from the specified file.",
-        "description": "Allows callers to specify a log file from the pre-configured directory and retrieve N number of latest entries.",
+        "summary": "Given the name of a log file expected to be in the preconfigured directory, returns the latest entries.",
+        "description": "Given the server has been preconfigured with a specific local directory, callers can request to see the latest entries of a readable file. Query parameters are optional, and when used together work as a union of criteria. See the specific query parameters for additional information.",
         "operationId": "GetEntries",
         "parameters": [
           {
             "name": "filename",
             "in": "path",
-            "description": "The name of the file to get the entries from.",
+            "description": "The name of the file to get the entries from. This must exist in the immediate directory that was configured for this server, and must have user readable permissions.",
             "schema": {
               "type": "string",
               "example": "messages.log"
@@ -59,20 +59,21 @@
           {
             "name": "numEntries",
             "in": "query",
-            "description": "The number of entries to return from the specified file name.",
+            "description": "The number of entries to return from the specified file name. When used with the `filterByText` parameter, the results will return upto this many entries that match the filter criteria.",
             "schema": {
               "type": "integer",
               "minimum": 1,
-              "maximum": 1000,
-              "example": 25
+              "maximum": 10000,
+              "default": 25,
+              "example": 100
             },
             "required": false,
             "allowEmptyValue": false
           },
           {
-            "name": "filter",
+            "name": "filterByText",
             "in": "query",
-            "description": "A simple string to search in the result set.",
+            "description": "A simple string to search for specific substrings in the result set. When used with the `numEntries` parameter, the results will return up to this many entries that match the filter criteria.",
             "schema": {
               "type": "string",
               "example": "ERROR"
@@ -86,13 +87,13 @@
             "$ref": "#/components/responses/GetEntriesResponse"
           },
           "400": {
-            "description": "Returned if the query parameters are not correctly formed."
+            "description": "One or more of the query parameters are not correctly formed."
           },
           "403": {
-            "description": "Returned when the requested file could not be read because it didn't have sufficient permissions."
+            "description": "The requested file could not be read due to insufficient read permissions."
           },
           "404": {
-            "description": "Returned when the requested file is not found."
+            "description": "The requested file is not found."
           },
           "500": {
             "description": "Unexpected Internal Server Error."
