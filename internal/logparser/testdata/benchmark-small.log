@@ -1,0 +1,11 @@
+01 Aug  7 21:18:18 the-host-name thisprocess[4321] Single process wrote this message.
+02 Aug  7 21:18:18 the-host-name thisprocess[4321] Multi-line message starts with this line.
+03	The next line is here, which explains a bunch of things that are related to the log entry.
+04	Finally, this will just be an additional line to add even more context.
+05 Aug  7 21:18:18 the-host-name thisprocess[4321] Single process wrote this message.
+06 Aug  7 21:18:18 the-host-name thisprocess[4321] Single process wrote this message.
+07 Aug  7 21:18:18 the-host-name thisprocess[4321] Multi-line message starts with this line.
+08	The next line is here, which explains a bunch of things that are related to the log entry.
+09	Finally, this will just be an additional line to add even more context.
+10 And another line to round it out.And another line to round it out.And another line to round it out.
+11 But wait, here's one more.But wait, here's one more.But wait, here's one more.

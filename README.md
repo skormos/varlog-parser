@@ -28,6 +28,8 @@ Before beginning, the following needs to be installed:
 - [GolangCI-Lint](https://golangci-lint.run/usage/install/)
 - `make`
 
+`GO111MODULE=off /usr/local/bin/go get -u -v golang.org/x/tools/cmd/goimports`
+
 ### Build and Run
 
 Once the Go and golangci-lint are installed, you should be able to run `make compile` which will attempt to run a few additional targets. This will generate a `varlogd` binary in the root of the project. This can be called directly by referring to the options in the Usage section above.
