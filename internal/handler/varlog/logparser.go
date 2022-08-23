@@ -14,7 +14,7 @@ import (
 
 const (
 	defaultLines = 25
-	maxLines     = 10000
+	maxLines     = 100000
 )
 
 type (
@@ -68,7 +68,7 @@ func (l *LogParserHandler) GetEntries(w http.ResponseWriter, r *http.Request, fi
 		return
 	}
 
-	lines, err := logparser.ParseLastNLines(r.Context(), reader, numLines, parsedParams.filterer())
+	lines, err := logparser.ParseLastNLinesSeek(r.Context(), reader, numLines, parsedParams.filterer())
 	if err != nil {
 		l.logger.Err(err).Msgf("while parsing %d lines for file %s", numLines, filename)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

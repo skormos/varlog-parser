@@ -21,16 +21,16 @@ type GetEntriesResponse struct {
 
 // GetEntriesParams defines parameters for GetEntries.
 type GetEntriesParams struct {
-	// The number of entries to return from the specified file name.
+	// The number of entries to return from the specified file name. When used with the `filterByText` parameter, the results will return upto this many entries that match the filter criteria.
 	NumEntries *int `form:"numEntries,omitempty" json:"numEntries,omitempty"`
 
-	// A simple string to search for specific substrings in the result set.
+	// A simple string to search for specific substrings in the result set. When used with the `numEntries` parameter, the results will return up to this many entries that match the filter criteria.
 	FilterByText *string `form:"filterByText,omitempty" json:"filterByText,omitempty"`
 }
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Gets the latest log entries from the specified file.
+	// Given the name of a log file expected to be in the preconfigured directory, returns the latest entries.
 	// (GET /{filename})
 	GetEntries(w http.ResponseWriter, r *http.Request, filename string, params GetEntriesParams)
 }
